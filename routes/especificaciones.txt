@@ -1,0 +1,6 @@
+Un tag en instagram:
+10 tags que mas se taguean junto a ese tag
+
+-bootstrap
+-mongo
+--historico de todas las consultas
