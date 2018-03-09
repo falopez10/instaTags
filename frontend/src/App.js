@@ -22,10 +22,10 @@ class App extends Component {
         me.setState({followers:followers});
         // console.log("estado followers: " + me.state.followers);
       })
+      .catch((err) => console.log(err) );
   }
 
 
-      .catch((err) => console.log(err) );
     
   render() {
     return (
