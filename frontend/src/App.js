@@ -13,7 +13,7 @@ class App extends Component {
 
   componentDidMount() {
     let me = this;
-    fetch("api/juanve98")
+    fetch("api/cat")
       .then((res) => {
         return res.json();
       })
