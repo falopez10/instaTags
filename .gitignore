@@ -1,7 +1,10 @@
+# Dependency directories
+node_modules/
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
-
+nodemodules
 # Folder config file
 Desktop.ini
 
