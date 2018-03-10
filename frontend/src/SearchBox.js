@@ -17,8 +17,10 @@ export default class SearchBox extends Component{
 	render(){
 
 		return (
-			<div>
-				<input ref="tagQueryInput" type="text" onInput={this.onEnterQueryTag.bind(this)}/>
+			<div >
+				<input id="tagQueryInput" placeholder="Write your favorite tag" 
+				className="border border-primary rounded"
+				type="text" onInput={this.onEnterQueryTag.bind(this)}/>
 			</div>
 			
 		);
