@@ -3,7 +3,7 @@ const mongodb = require("mongodb").MongoClient;
 const dbName = "heroku_7nk60ng3";
 const url = process.env.MONGODB_URI||"mongodb://localhost:27017/"+dbName;
 
-exports.insertTag = function(_tag){
+exports.upsertTag = function(_tag){
   mongodb.connect(url, function(err, dbm) {
     if (err) {
       console.log("err");
@@ -11,14 +11,20 @@ exports.insertTag = function(_tag){
     };
 
     const mydb = dbm.db(dbName);
-    const myquery = { tag: _tag, date: new Date()};
+    const myquery = { tag: _tag};
+    const update = { tag: _tag, date: new Date()};
 
-    mydb.collection("tags").insert(myquery, function(err, res) {
-      if (err) throw err;
-      dbm.close();
-    });
+    mydb.collection("tags").update(
+      //Que encuentre este tag
+      myquery, 
+      //que actualice el tag (o inserte uno nuevo)
+      update,
+      //se activa update/insert
+      {upsert: true});
 
-    
+
+    dbm.close();
+
 
   });
 }

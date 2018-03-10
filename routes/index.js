@@ -18,7 +18,8 @@ const getTags = function(req, res) {
         console.log("buscando Top 10 para el tag: " + tagQuery);
         let top10 = top10tags(listarTagsContados(listarTags(json, tagQuery)));
         res.json(top10);
-        mongoDB.insertTag(tagQuery);
+        //agrego tag entre los buscados, o actualizo su fecha
+        mongoDB.upsertTag(tagQuery);
 
       });
   })
