@@ -8,16 +8,16 @@ const urlBase = "https://www.instagram.com/explore/tags/";
 const urlEnd = "?__a=1";
 
 //acceso a instagram
-router.get("/:query", function(req, res) {
-  let tagQuery = req.params.query;
+router.get("/:queryTag", function(req, res) {
+  let tagQuery = req.params.queryTag;
 
   fetch(urlBase + tagQuery + urlEnd)
   .then(response => {
     response.json()
     .then(json => {
         // console.log("recibido: " + JSON.stringify(json));
-        
-        res.json(Top10Tags(listarTags(json)));
+        let top10 = top10tags(listarTagsContados(listarTags(json)));
+        res.json(top10);
       });
   })
   .catch(error => {
@@ -26,7 +26,7 @@ router.get("/:query", function(req, res) {
   console.log()
 });
 
-//listado de tags
+//listado de todos los tags
 const listarTags = function(_json){
   let listTexts = _json.graphql.hashtag.edge_hashtag_to_top_posts.edges;
   // console.log(graphql.hashtag.edge_hashtag_to_top_posts.edges[0].node.edge_media_to_caption.edges[0].node.text);
@@ -53,22 +53,24 @@ const listarTags = function(_json){
 
 }
 //retorno de 10 tags
-const Top10Tags = function(listTags){
+const listarTagsContados = function(listTags){
   let listUniqueObjs = [];
   let listUniqueTags = [];
   for(let i=0; i<listTags.length;++i)
   {
-    let tagActual = listTags[i];
-    if(listUniqueTags.includes(tagActual))
-    {
-      let uniqueObj = listUniqueObjs.find(tagActual);
-      uniqueTag.count = uniqueTag.count+1;
+    //recoge tag actual, quitandole el hashtag
+    let tagActual = listTags[i].split("#")[1];
+
+    let uniqueObj = listUniqueObjs.find((_obj)=>_obj.tag===tagActual);
+    if(uniqueObj){
+      uniqueObj.count++;
+      // console.log("incrementado: " + JSON.stringify(uniqueObj));
     }
     else{
       let obj = {"tag":tagActual, "count":1};
       listUniqueTags.push(tagActual);
       listUniqueObjs.push(obj);
-      console.log("pusheado: " + JSON.stringify(obj));
+      // console.log("pusheado: " + JSON.stringify(obj));
 
     }
   }
@@ -76,6 +78,14 @@ const Top10Tags = function(listTags){
   return listUniqueObjs;
 
 }
+
+//top 10 tags
+ const top10tags = function(listTags){
+  //de mayor count a menor
+  sortedList = listTags.sort((objA,objB)=>objB.count-objA.count);
+  //solo los primeros 10
+  return sortedList.slice(0,9);
+ }
 
 //--------------------------------------------------------------------
 
@@ -96,24 +106,6 @@ const findDocuments = function(db, query, callback) {
   });
 };
 
-function getFollowers(query, callback) {
-
-  // Database Name
-  const dbName = "twitter_followers";
-
-  // Use connect method to connect to the server
-  MongoClient.connect(url, function(err, client) {
-    assert.equal(null, err);
-    console.log("Connected successfully to server");
-
-    const db = client.db(dbName);
-
-    findDocuments(db, query, callback);
-
-    client.close();
-  });
-
-}
 
 /* GET home page. */
 // router.get("/:query", function(req, res) {
