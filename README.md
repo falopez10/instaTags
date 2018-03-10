@@ -24,7 +24,7 @@ The app itself is pretty intuitive.
 
 ## Technologies used
 
-**Back End**
+**DataBase**
 * MongoDB
 
 **Back End**
