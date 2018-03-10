@@ -1,33 +1,36 @@
-var express = require("express");
-const MongoClient = require("mongodb").MongoClient;
+const express = require("express");
 const assert = require("assert");
-var router = express.Router();
+const router = express.Router();
 const fetch = require("node-fetch");
+const mongoDB = require("./db.js");
 //ZONA INSTAGRAM----------------------------------------------------
 const urlBase = "https://www.instagram.com/explore/tags/";
 const urlEnd = "?__a=1";
 
 //acceso a instagram
-router.get("/:queryTag", function(req, res) {
+const getTags = function(req, res) {
   let tagQuery = req.params.queryTag;
-
   fetch(urlBase + tagQuery + urlEnd)
   .then(response => {
     response.json()
     .then(json => {
         // console.log("recibido: " + JSON.stringify(json));
-        let top10 = top10tags(listarTagsContados(listarTags(json)));
+        console.log("buscando Top 10 para el tag: " + tagQuery);
+        let top10 = top10tags(listarTagsContados(listarTags(json, tagQuery)));
         res.json(top10);
+        mongoDB.insertTag(tagQuery);
+
       });
   })
   .catch(error => {
-    console.log(error);
+    res.send("No se consiguieron registros para "+tagQuery+". Intente nuevamente")
+    console.log("Error en el fetch: "+error);
   });
-  console.log()
-});
+}
+
 
 //listado de todos los tags
-const listarTags = function(_json){
+const listarTags = function(_json, _tagQuery){
   let listTexts = _json.graphql.hashtag.edge_hashtag_to_top_posts.edges;
   // console.log(graphql.hashtag.edge_hashtag_to_top_posts.edges[0].node.edge_media_to_caption.edges[0].node.text);
   listTexts = listTexts.map((e)=>{
@@ -40,6 +43,8 @@ const listarTags = function(_json){
     text = listTexts[ind];
     for(let w of text.split(" "))
     {
+      if(w.split("#")[1]===_tagQuery)
+        continue;
       if (w.startsWith("#")){
 
         listTags.push(w);
@@ -74,46 +79,36 @@ const listarTagsContados = function(listTags){
 
     }
   }
-  console.log(listUniqueObjs);
+  // console.log(listUniqueObjs);
   return listUniqueObjs;
 
 }
 
 //top 10 tags
- const top10tags = function(listTags){
+const top10tags = function(listTags){
   //de mayor count a menor
   sortedList = listTags.sort((objA,objB)=>objB.count-objA.count);
   //solo los primeros 10
   return sortedList.slice(0,9);
- }
+}
 
 //--------------------------------------------------------------------
 
+const findSearchedTags = function(req,res){
+  let searchedTags = mongoDB.findSearchedTags((_docs)=>{
+    res.json(_docs);
+  });
+}
+
+
+
+router.get("/tag/:queryTag", getTags);
+router.get("/searchedTags/", findSearchedTags);
+
+
 
 // Connection URL
-const url = "mongodb://localhost:27017";
 
 
-const findDocuments = function(db, query, callback) {
-  // Get the documents collection
-  const collection = db.collection("followers");
-  // Find some documents
-  collection.find(query).limit(20).toArray(function(err, docs) {
-    assert.equal(err, null);
-    console.log("Found " + docs.length + " records");
-    // console.log(docs);
-    callback(docs);
-  });
-};
-
-
-/* GET home page. */
-// router.get("/:query", function(req, res) {
-//   console.log("req params "+req.params);
-//   getFollowers(
-//     {"user.screen_name":req.params.query}, 
-//     (followers) => res.send(followers) 
-//     );
-// });
 
 module.exports = router;
