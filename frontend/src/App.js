@@ -63,7 +63,11 @@ class App extends Component {
   render() {
     return (
       <div className="App container">
-        <div className="row justify-content-center "><center><h1><b>InstaTags</b><br/>Search ocurrences by #tag!</h1></center></div>
+        <div className="row justify-content-center ">
+          <center>
+            <h1><b>InstaTags</b><br/>Search ocurrences by #tag!</h1>
+          </center>
+        </div>
         <div className="row top-buffer-g">
           <div className="col col-centered alert alert-success">
             <h2>Write a tag, and get the 10 most common associated tags</h2>
